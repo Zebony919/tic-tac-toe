@@ -19,9 +19,9 @@ const displayController = (() => {
         const board = gameBoard.getBoard();
         console.log(`
             ${board[0] || "-"} | ${board[1] || "-"} | ${board[2] || "-"}
-            -----------
+            ---------
             ${board[3] || "-"} | ${board[4] || "-"} | ${board[5] || "-"}
-            -----------
+            ---------
             ${board[6] || "-"} | ${board[7] || "-"} | ${board[8] || "-"}
         `);
     };
@@ -51,6 +51,13 @@ const gameController = (() => {
         return null;
     };
 
+    const resetGame = () => {
+        gameBoard.reset();
+        currentPlayer = "X";
+        console.log(`Game reset, ${currentPlayer} starts!`);
+        displayController.printBoard();
+    }
+
     const playRound = (index) => {
 
         if (gameBoard.setCell(index, currentPlayer)) {
@@ -59,11 +66,11 @@ const gameController = (() => {
             const result = checkWinner();
             if (result === "tie") {
                 console.log("It's a tie!");
-                gameBoard.reset();
+                resetGame();
                 return;
             } else if (result) {
                 console.log(`${result} wins!`);
-                gameBoard.reset();
+                resetGame();
                 return;
             }
 
@@ -74,5 +81,29 @@ const gameController = (() => {
         }
     };
 
-    return { playRound };
+    return { playRound, resetGame };
+})();
+
+// Display Board on browser
+const domController = (() => {
+    const squares = document.querySelectorAll(".squares");
+
+    const updateDisplay = () => {
+        const board = gameBoard.getBoard();
+        squares.forEach((square, index) => {
+            square.textContent = board[index];
+        });
+    };
+
+    const handleClick = (e) => {
+        const index = e.target.dataset.index;
+        gameController.playRound(Number(index));
+        updateDisplay();
+    };
+
+    sqaures.forEach(square => {
+        square.addEventListener("click", handleClick);
+    });
+
+    return { updateDisplay };
 })();
