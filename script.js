@@ -14,23 +14,11 @@ const gameBoard = (() => {
     return { getBoard, setCell, reset };
 })();
 
-const displayController = (() => {
-    const printBoard = () => {
-        const board = gameBoard.getBoard();
-        console.log(`
-            ${board[0] || "-"} | ${board[1] || "-"} | ${board[2] || "-"}
-            ---------
-            ${board[3] || "-"} | ${board[4] || "-"} | ${board[5] || "-"}
-            ---------
-            ${board[6] || "-"} | ${board[7] || "-"} | ${board[8] || "-"}
-        `);
-    };
-
-    return { printBoard };
-})();
-
 const gameController = (() => {
     let currentPlayer = "X";
+    let gameActive = true;
+    let xScore = document.querySelector(".xScore");
+    let oScore = document.querySelector(".oScore");
 
     const checkWinner = () => {
         const board = gameBoard.getBoard();
@@ -53,31 +41,32 @@ const gameController = (() => {
 
     const resetGame = () => {
         gameBoard.reset();
+        gameActive = true;
         currentPlayer = "X";
-        console.log(`Game reset, ${currentPlayer} starts!`);
-        displayController.printBoard();
+        xScore.textContent = 0;
+        oScore.textContent = 0;
     }
 
     const playRound = (index) => {
-
+        if (!gameActive) return;  
+        
         if (gameBoard.setCell(index, currentPlayer)) {
-            displayController.printBoard();
-
+            
             const result = checkWinner();
-            if (result === "tie") {
-                console.log("It's a tie!");
-                resetGame();
-                return;
-            } else if (result) {
-                console.log(`${result} wins!`);
-                resetGame();
-                return;
+            if (result) {
+                if (result === "tie") {
+                    alert("Tie!");
+                } else {
+                    alert(`${result} wins!`);
+                }
+                gameActive = false;  
+                setTimeout(() => { 
+                    resetGame();
+                    domController.updateDisplay(); 
+                }, 1000);
+            } else {
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
             }
-
-            currentPlayer = currentPlayer === "X" ? "O" : "X";
-            console.log(`${currentPlayer} turn`);
-        } else {
-            console.log("Cell already taken!");
         }
     };
 
@@ -86,7 +75,7 @@ const gameController = (() => {
 
 // Display Board on browser
 const domController = (() => {
-    const squares = document.querySelectorAll(".squares");
+    const squares = document.querySelectorAll(".square");
 
     const updateDisplay = () => {
         const board = gameBoard.getBoard();
@@ -101,7 +90,7 @@ const domController = (() => {
         updateDisplay();
     };
 
-    sqaures.forEach(square => {
+    squares.forEach(square => {
         square.addEventListener("click", handleClick);
     });
 
