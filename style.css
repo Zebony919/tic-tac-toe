@@ -5,12 +5,6 @@ body {
     background-color: purple;
 }
 
-h1,
-.leftScore,
-.rightScore {
-    border: 2px solid white;
-}
-
 h1 {
     width: fit-content;
     margin: 0;
